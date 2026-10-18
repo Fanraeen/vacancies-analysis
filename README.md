@@ -53,7 +53,7 @@
   BI-системы и 1С (по 12%), статистика (5%). Тексты сохраняются до 300 символов,
   поэтому реальные доли могут быть выше, а разница между Excel и SQL на такой
   выборке не значима.
-  
+
 <p align="center">
   <img src="reports/regions.png" width="500" alt="Вакансии аналитиков по регионам">
 </p>
@@ -88,6 +88,8 @@ pip install -r requirements.txt
 python collect.py     # собрать срез
 python analysis.py    # посчитать сводки
 ```
+
+[![Открыть в Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Fanraeen/vacancies-analysis/blob/main/notebooks/vacancies_analysis.ipynb)
 
 ## Планы
 
