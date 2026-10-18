@@ -1,7 +1,10 @@
 import re
 import sqlite3
+import os
 
 import pandas as pd
+import matplotlib.pyplot as plt
+
 
 conn = sqlite3.connect("data/vacancies.db")
 df = pd.read_sql(
@@ -85,3 +88,30 @@ print(f"\nВакансий с текстом требований: {n_text} из
 for name, pat in skills.items():
     n = int(text.str.contains(pat, regex=True).sum())
     print(f"{name}: {n} ({n / n_text:.0%} от вакансий с текстом)")
+
+
+os.makedirs("reports", exist_ok=True)
+snap = conn.execute("SELECT MAX(snapshot_date) FROM vacancies").fetchone()[0]
+
+# График 1: топ-10 регионов
+top = df["region"].value_counts().head(10).sort_values()
+fig, ax = plt.subplots(figsize=(8, 5))
+bars = ax.barh(top.index, top.values, color="#4C72B0")
+ax.bar_label(bars, padding=3)
+ax.set_title(f"Вакансии аналитиков по регионам (срез {snap})")
+ax.set_xlabel("Число вакансий")
+fig.tight_layout()
+fig.savefig("reports/regions.png", dpi=150)
+plt.close(fig)
+
+# График 2: требуемый опыт
+order = ["без опыта", "около 1 года", "2–3 года", "4+ лет", "не указан"]
+exp = df["exp_bucket"].value_counts().reindex(order).dropna()
+fig, ax = plt.subplots(figsize=(8, 5))
+bars = ax.bar(exp.index, exp.values, color="#55A868")
+ax.bar_label(bars, padding=3)
+ax.set_title(f"Требуемый опыт в вакансиях аналитиков (срез {snap})")
+ax.set_ylabel("Число вакансий")
+fig.tight_layout()
+fig.savefig("reports/experience.png", dpi=150)
+plt.close(fig)
