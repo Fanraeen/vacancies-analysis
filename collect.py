@@ -42,6 +42,8 @@ def collect():
                 v.get("employment"),
                 v.get("schedule"),
                 v.get("creation-date"),
+                v.get("qualification"),
+                (v.get("requirements") or "")[:300],
             ))
         time.sleep(1)  # не нагружаем госсервис
     return rows
@@ -58,8 +60,18 @@ def save(rows):
             PRIMARY KEY (snapshot_date, id)
         )
     """)
+    for col in ("qualification", "requirements"):
+        try:
+            conn.execute(f"ALTER TABLE vacancies ADD COLUMN {col} TEXT")
+        except sqlite3.OperationalError:
+            pass  # столбец уже есть
+
     conn.executemany(
-        "INSERT OR REPLACE INTO vacancies VALUES (?,?,?,?,?,?,?,?,?,?)", rows
+        """INSERT OR REPLACE INTO vacancies
+           (snapshot_date, id, title, salary_min, salary_max, region,
+            company, employment, schedule, created, qualification, requirements)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+        rows,
     )
     conn.commit()
     conn.close()
